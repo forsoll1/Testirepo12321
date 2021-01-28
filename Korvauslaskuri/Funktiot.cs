@@ -9,6 +9,7 @@ namespace Korvauslaskuri
     // Luokka mainissa käytettäville funktioille, siirretty omaan luokkaansa siisteyden takia
     class Funktiot
     {
+
         // Työntekijä-objektien lisääminen/poistaminen 
         public List<Tyontekija> LuoPoistaTyontekija(List<Tyontekija> henkilot)
         {
@@ -84,6 +85,11 @@ namespace Korvauslaskuri
         }
 
 
+
+
+        //   Yksittäisten työntekijöiden matkojen käsittely  //
+
+
         // Funktio korvausten arvojen muokkaamista varten, kutsutaan matkojen kirjaamisen yhteydessä
         public void MuutaKorvaukset(double kk_v, double puoliPR_v, double kokoPR_v, out double kk, out double puoliPR, out double kokoPR)
         {
@@ -97,9 +103,134 @@ namespace Korvauslaskuri
         }
 
 
-        // Funktio jonka kautta tarkastellaan matkakulujen kokonaiskertymiä
+        // Funktio - syötetään matkakohtaiset tiedot tallennusta varten
+        public void MatkanTallennus(Tyontekija valittu_tyontekija)
+        {
+            double kk = 0.44;       // Korvausten arvot, oletuksena vuoden 2021 arvot
+            double puoliPR = 20;
+            double kokoPR = 44;
 
-        public  void KorvaustenTarkastelu(List<Tyontekija> henkilot)
+            Console.WriteLine("Oletusarvona vuoden 2021 korvaukset: Kilometrikorvaus {0} e/kk, Puolipäiväraha {1}e, Päiväraha {2}e", kk, puoliPR, kokoPR);
+            Console.WriteLine("Haluatko muuttaa käytössä olevat korvaukset? K/E");
+            string vastaus = Console.ReadLine();
+            if (vastaus == "K")
+            {
+                MuutaKorvaukset(kk, puoliPR, kokoPR, out kk, out puoliPR, out kokoPR);     // Siirretty omaksi funktiokseen
+            }
+
+            Console.WriteLine("Anna matkan päivämäärä muodossa p.kk.v");
+            string pvm = Console.ReadLine();
+            Console.WriteLine("Anna lähtöaika (muoto 12:34)");
+            string lahto = Console.ReadLine();
+            Console.WriteLine("Anna paluuaika (muoto 15:22)");
+            string paluu = Console.ReadLine();
+            Console.WriteLine("Anna matkatut kilometrit");
+            int kilometrit = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("\n");
+
+            Matka uusi = new Matka(pvm, lahto, paluu, kilometrit, kk, puoliPR, kokoPR);  // Uusi Matka-objekti, jolle syötetään tarvittavat tiedot korvauslaskuja varten
+            Console.WriteLine(uusi.Tiedot());
+            valittu_tyontekija.Maksamattomat = uusi.Korvaukset();                       // Maksamattomat-metodin "set" komennolla lisätään valitulle työntekijälle matkan korvaukset
+            valittu_tyontekija.AddMatka(uusi);                                          // Tallennetaan Matka työntekijälle
+            Console.WriteLine("Työntekijälle kertynyt maksamattomia korvauksia: " + valittu_tyontekija.Maksamattomat);
+        }
+        
+        
+        // Funktio - kuitataan haluttu määrä työntekijällä maksamattomina olevista korvauksista maksetuiksi
+        public void KuittaaMaksetuiksi(Tyontekija valittu_tyontekija)
+        {
+            if (valittu_tyontekija.Maksamattomat == 0)
+            {
+                Console.WriteLine("Ei maksamattomia korvauksia");
+                return;
+            }
+            Console.WriteLine("Maksamattomia korvauksia: " + valittu_tyontekija.Maksamattomat);
+            Console.WriteLine("Kuinka suurella summalla haluat kuitata korvauksia maksetuiksi?");
+            double maksa_korvauksia = Convert.ToDouble(Console.ReadLine());
+            valittu_tyontekija.MaksaKorvauksia(maksa_korvauksia);
+            Console.WriteLine("\nHenkilölle " + valittu_tyontekija.getName() + " maksettu " + maksa_korvauksia);
+            Console.WriteLine("Maksettuja: " + valittu_tyontekija.Maksetut + "  Maksamattomia: " + valittu_tyontekija.Maksamattomat);
+            return;
+        }
+
+
+        // Funktio - poista työntekijälle kirjattu matka esim. kirjoitusvirheiden varalta
+        public void PoistaMatka(Tyontekija valittu_tyontekija)
+        {
+            while (true)
+            {
+                if (valittu_tyontekija.getMatkat().Count > 0)
+                {
+                    var matkalista = valittu_tyontekija.getMatkat();
+                    Console.WriteLine("Valitse minkä työmatkan haluat poistaa, 'P' palaa valikkoon: ");
+                    for (int i = 0; i < matkalista.Count(); i++)
+                    {
+                        Console.WriteLine("{0} - {1}", i + 1, matkalista[i].Tiedot());
+                    }
+                    string poista = Console.ReadLine();
+                    if (poista == "P" && poista == "p")
+                    {
+                        return;
+                    }
+                    else if (Convert.ToInt32(poista) - 1 >= 0 && Convert.ToInt32(poista) - 1 < matkalista.Count())
+                    {
+                        double korvaus = matkalista[Convert.ToInt32(poista) - 1].Korvaukset();
+                        valittu_tyontekija.Maksamattomat = (korvaus * -1);
+                        matkalista.RemoveAt(Convert.ToInt32(poista) - 1);
+                        Console.WriteLine("Matka poistettu\n");
+                        continue;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Väärä syöte\n");
+                        return;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Henkilöllä ei ole tallennettuja matkoja");
+                    return;
+                }
+            }
+        }
+
+
+        // Funktio - Valitaan Mainissa olevasta työntekijälistasta työntekijä-objekti käsittelyä varten
+        public Tyontekija TyontekijanValinta(List<Tyontekija> henkilot)
+        {
+            Tyontekija valittu_henkilo;
+
+            Console.WriteLine("Valitse työntekijää vastaava numero");
+            int counter = 0;
+            while (true)
+            {
+                foreach (var x in henkilot)
+                {
+                    counter += 1;
+                    Console.WriteLine(counter + " : " + x.getName());
+                }
+                string t_valinta = Console.ReadLine();
+                int t_valinta_int = Convert.ToInt32(t_valinta);
+                if (t_valinta_int - 1 <= henkilot.Count && t_valinta_int > 0)
+                {
+                    valittu_henkilo = henkilot[(t_valinta_int - 1)];
+                    return valittu_henkilo;
+                }
+                else
+                {
+                    Console.WriteLine("Väärä valinta, yritä uudelleen");
+                }
+            }
+        }
+
+
+
+
+
+        //   Matkakorvausten koonti   //
+
+        // Funktio jonka kautta tarkastellaan matkakulujen kokonaiskertymiä
+        public void KorvaustenTarkastelu(List<Tyontekija> henkilot)
         {
             List<int> vuodet = new List<int>();     // Kerätään listaan kaikki vuodet, joilta maksettavia matkakorvauksia on kertynyt
             foreach (var x in henkilot)
@@ -161,7 +292,7 @@ namespace Korvauslaskuri
                         }
                         continue;
 
-                    // Loopataan jokaisen henkilön vuosittain kertyneet matkakulut
+                    // Loopataan henkilö -> vuosi -> matka, tulostetaan vuosittain kertyneet matkakulut
                     case "3":
                         foreach (var x in henkilot)
                         {
@@ -199,6 +330,13 @@ namespace Korvauslaskuri
                 }
             }
         }
+
+
+
+        
+
+
+
     }
 
 
