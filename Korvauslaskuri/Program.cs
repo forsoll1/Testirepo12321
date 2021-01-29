@@ -21,6 +21,7 @@ namespace Korvauslaskuri
 
 
             // Yritetään lukea tiedosto, johon tallennettu ohjelman käsittelemät tiedot
+            // Tiedoston path ongelma? Mikä olisi optimaalinen? Muutenkin tiedostoon tallentamisen varmuus täysi mysteeri. 
 
             try
             {
@@ -47,7 +48,8 @@ namespace Korvauslaskuri
                 if (valinta == "1")
                 {
                     henkilot = funktio.LuoPoistaTyontekija(henkilot);
-                    ser();
+                    ser();                      // Huom. ser-funktio tallentaa (potentiaalisesti) muuttuneet tiedot tiedostoon.
+                                                // Jos teet muutoksia ohjelman rakenteeseen pidä huoli, että ser-tulee kutsuttua uusien tietojen tallennusta varten.
                 }
                 else if (valinta == "2")
                 {
@@ -145,6 +147,8 @@ namespace Korvauslaskuri
 
             void ser()
             {
+
+                // Alustaa tiedoston, muutoin voi tulla ongelmia esim. jos yritetään tallentaa tyhjää listaa työntekijätietojen poistamisen jälkeen.
                 try
                 {
                     FileStream fileStream = File.Open(Environment.CurrentDirectory + "\\mytext.xml", FileMode.Open);
@@ -164,7 +168,7 @@ namespace Korvauslaskuri
             }
 
 
-            // Funktio - Puretaan xml-tiedoston sisältö, muunnetaan luettavaan muotoon ja lisätään sisältö henkilöt-listaan
+            // Funktio - Puretaan xml-tiedoston sisältö, muunnetaan luettavaan muotoon ja luodaan henkilot-lista sen pohjalta.
 
             void deser()
             {
