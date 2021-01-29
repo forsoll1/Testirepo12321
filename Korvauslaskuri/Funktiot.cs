@@ -331,14 +331,5 @@ namespace Korvauslaskuri
                 }
             }
         }
-
-
-
-        
-
-
-
     }
-
-
 }
