@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
 
 namespace Korvauslaskuri
 {
@@ -10,9 +14,24 @@ namespace Korvauslaskuri
     {
         static void Main(string[] args)
         {
+
+
             List<Tyontekija> henkilot = new List<Tyontekija>();
             Funktiot funktio = new Funktiot();
-            
+
+
+            // Yritetään lukea tiedosto, johon tallennettu ohjelman käsittelemät tiedot
+
+            try
+            {
+                deser();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("");
+            }
+
+
             // Päävalikko
 
             while (true)
@@ -28,10 +47,12 @@ namespace Korvauslaskuri
                 if (valinta == "1")
                 {
                     henkilot = funktio.LuoPoistaTyontekija(henkilot);
+                    ser();
                 }
                 else if (valinta == "2")
                 {
                     TyontekijoidenKasittely();
+                    ser();
                 }
                 else if (valinta == "3")
                 {
@@ -73,19 +94,16 @@ namespace Korvauslaskuri
                         funktio.MatkanTallennus(valittu_tyontekija);
                     }
 
-
                     else if (vastaus == "2")
                     {
                         funktio.KuittaaMaksetuiksi(valittu_tyontekija);  
                     }
-
 
                     else if (vastaus == "3")
                     {
                         Console.WriteLine("\nHenkilölle " + valittu_tyontekija.getName() + " maksamattomat korvaukset: " + valittu_tyontekija.Maksamattomat);
                         Console.WriteLine("Henkilölle " + valittu_tyontekija.getName() + " maksetut korvaukset: " + valittu_tyontekija.Maksetut);
                     }
-
 
                     else if (vastaus == "4")
                     {
@@ -103,20 +121,62 @@ namespace Korvauslaskuri
                             Console.WriteLine("Henkilöllä ei ole tallennettuja matkoja");
                         }
                     }
+                    
                     else if (vastaus == "5")
                     {
                         funktio.PoistaMatka(valittu_tyontekija);
                     }
+                    
                     else if (vastaus == "6")
                     {
                         return;
                     }
+                    
                     else if (vastaus == "7")
                     {
                         valittu_tyontekija = funktio.TyontekijanValinta(henkilot);
                         continue;
                     }
                 }
+            }
+
+
+            // Funktio - Kirjoitetaan henkilot-listan kaikki sisältö xml-tiedostoon. Täyttä voodoota, toimii lähinnä tuurilla. 
+
+            void ser()
+            {
+                try
+                {
+                    FileStream fileStream = File.Open(Environment.CurrentDirectory + "\\mytext.xml", FileMode.Open);
+                    fileStream.SetLength(0);
+                    fileStream.Close(); 
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine(""); 
+                }
+                
+
+                Stream stream = File.OpenWrite(Environment.CurrentDirectory + "\\mytext.xml");
+                DataContractSerializer DataSer = new DataContractSerializer(typeof(List<Tyontekija>));
+                DataSer.WriteObject(stream, henkilot);
+                stream.Close();
+            }
+
+
+            // Funktio - Puretaan xml-tiedoston sisältö, muunnetaan luettavaan muotoon ja lisätään sisältö henkilöt-listaan
+
+            void deser()
+            {
+                Stream stream = File.OpenRead(Environment.CurrentDirectory + "\\mytext.xml");
+
+                XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(stream, new XmlDictionaryReaderQuotas());
+                DataContractSerializer seri = new DataContractSerializer(typeof(List<Tyontekija>));
+
+                henkilot = (List<Tyontekija>)seri.ReadObject(reader, true);
+
+                reader.Close();
+                stream.Close();
             }
         }
     }

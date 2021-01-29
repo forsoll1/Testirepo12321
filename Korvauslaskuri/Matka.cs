@@ -3,16 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace Korvauslaskuri
 {
-    [Serializable()]
+    [DataContract()]
     class Matka
     {
+        [DataMember]
         private int tag;            // Irrotetaan vuosiluku tagiksi jonka perusteella yksittäisi matkoja voidaan lajitella, oli asiakkaan toiveissa
+        
+        [DataMember]
         private string pvm;
+
+        [DataMember]
         private string matka_aika;
+
+        [DataMember]
         private double kilometrikorvaus;
+
+        [DataMember]
         private double paivaraha;
 
 

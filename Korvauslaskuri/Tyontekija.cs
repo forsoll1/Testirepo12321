@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
+
 
 namespace Korvauslaskuri
 {
     // Luokkaan tallennetaan yksittäiselle työntekijälle tulevat matkat ja matkoista aiheutuvat korvaukset.
     // Matkat tallennettuna listaan, korvauksista (maksetuista ja maksamattomista) tallennettuna yksinkertainen luku
-    [Serializable()]
+    [DataContract()]
     class Tyontekija
     {
+        [DataMember]
         private string nimi;
+
+        [DataMember]
         private double maksamattomat = 0;
+
+        [DataMember]
         private double maksetut = 0;
+
+        [DataMember]
         private List<Matka> matkat = new List<Matka>();
 
         public Tyontekija(string nimi)

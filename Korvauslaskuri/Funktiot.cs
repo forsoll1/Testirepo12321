@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Korvauslaskuri
 {
-    // Luokka mainissa käytettäville funktioille, siirretty omaan luokkaansa siisteyden takia
+    // Aiemmin mainista löytyneitä funktioita siirretty omaan luokkaan
     class Funktiot
     {
 
@@ -90,7 +90,7 @@ namespace Korvauslaskuri
         //   Yksittäisten työntekijöiden matkojen käsittely  //
 
 
-        // Funktio korvausten arvojen muokkaamista varten, kutsutaan matkojen kirjaamisen yhteydessä
+        // Metodi korvausten arvojen muokkaamista varten, kutsutaan matkojen kirjaamisen yhteydessä
         public void MuutaKorvaukset(double kk_v, double puoliPR_v, double kokoPR_v, out double kk, out double puoliPR, out double kokoPR)
         {
             Console.WriteLine("\nAnna uusi kilometrikorvauksen arvo (nykyinen: {0}): ", kk_v);
@@ -103,7 +103,7 @@ namespace Korvauslaskuri
         }
 
 
-        // Funktio - syötetään matkakohtaiset tiedot tallennusta varten
+        // Metodi - syötetään matkakohtaiset tiedot tallennusta varten
         public void MatkanTallennus(Tyontekija valittu_tyontekija)
         {
             double kk = 0.44;       // Korvausten arvot, oletuksena vuoden 2021 arvot
@@ -136,7 +136,7 @@ namespace Korvauslaskuri
         }
         
         
-        // Funktio - kuitataan haluttu määrä työntekijällä maksamattomina olevista korvauksista maksetuiksi
+        // Metodi - kuitataan haluttu määrä työntekijällä maksamattomina olevista korvauksista maksetuiksi
         public void KuittaaMaksetuiksi(Tyontekija valittu_tyontekija)
         {
             if (valittu_tyontekija.Maksamattomat == 0)
@@ -154,7 +154,7 @@ namespace Korvauslaskuri
         }
 
 
-        // Funktio - poista työntekijälle kirjattu matka esim. kirjoitusvirheiden varalta
+        // Metodi - poista työntekijälle kirjattu matka esim. kirjoitusvirheiden varalta
         public void PoistaMatka(Tyontekija valittu_tyontekija)
         {
             while (true)
@@ -195,7 +195,7 @@ namespace Korvauslaskuri
         }
 
 
-        // Funktio - Valitaan Mainissa olevasta työntekijälistasta työntekijä-objekti käsittelyä varten
+        // Metodi - Valitaan Mainissa olevasta työntekijälistasta työntekijä-objekti käsittelyä varten
         public Tyontekija TyontekijanValinta(List<Tyontekija> henkilot)
         {
             Tyontekija valittu_henkilo;
@@ -229,7 +229,7 @@ namespace Korvauslaskuri
 
         //   Matkakorvausten koonti   //
 
-        // Funktio jonka kautta tarkastellaan matkakulujen kokonaiskertymiä
+        // Metodi jonka kautta tarkastellaan matkakulujen kokonaiskertymiä
         public void KorvaustenTarkastelu(List<Tyontekija> henkilot)
         {
             List<int> vuodet = new List<int>();     // Kerätään listaan kaikki vuodet, joilta maksettavia matkakorvauksia on kertynyt
@@ -296,6 +296,7 @@ namespace Korvauslaskuri
                     case "3":
                         foreach (var x in henkilot)
                         {
+                            Console.WriteLine("\n");
                             if (x.getMatkat().Count > 0) { Console.WriteLine("Henkilön {0} työmatkat: ", x.getName()); }
                             double kokonaissumma = 0;
                             foreach (var y in vuodet)
